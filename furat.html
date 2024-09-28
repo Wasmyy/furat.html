@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحميل صورة وإرسالها</title>
+</head>
+<body>
+    <h1>تحميل صورة وإرسالها إلى بوت تيليجرام</h1>
+    <input type="file" id="fileInput" accept="image/*">
+    <button id="sendButton">إرسال الصورة</button>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const sendButton = document.getElementById('sendButton');
+
+        sendButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    sendToTelegram(reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('يرجى تحميل صورة.');
+            }
+        });
+
+        // إرسال الصورة إلى بوت تيليجرام
+        function sendToTelegram(imageData) {
+            const botToken = '7668195153:AAHe9CTgE2bvyJpQaSE9Aq_11a4bTq9qK7U';  // التوكن الخاص بك
+            const chatId = '6992864320';  // الـ Chat ID الصحيح
+            const apiUrl = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+
+            // تحويل الصورة إلى Blob
+            fetch(imageData)
+                .then(res => res.blob())
+                .then(blob => {
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('photo', blob);
+
+                    // إرسال الصورة إلى تيليجرام
+                    return fetch(apiUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('تم إرسال الصورة بنجاح', data);
+                })
+                .catch(error => {
+                    console.error('حدث خطأ أثناء إرسال الصورة إلى تيليجرام:', error);
+                });
+        }
+    </script>
+</body>
+</html>
